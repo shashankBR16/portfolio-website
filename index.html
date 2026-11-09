@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shashank B R — Full-Stack Developer</title>
+    <title>Shashank B R — Full-Stack Systems & Design Architecture</title>
     
-    <!-- Fonts: Inter & JetBrains Mono -->
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;700;800&display=swap" rel="stylesheet">
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -18,17 +18,16 @@
                 extend: {
                     colors: {
                         pitch: '#000000',
-                        surface: '#09090b',
-                        surfaceElevated: '#121215',
-                        borderMuted: 'rgba(255, 255, 255, 0.1)',
-                        borderFaint: 'rgba(255, 255, 255, 0.05)',
-                        tasteOrange: '#ff5722',
-                        textMuted: '#a1a1aa',
-                        textDim: '#71717a'
+                        warmCanvas: '#f5f4ef',
+                        warmCard: '#ffffff',
+                        warmBorder: '#e6e4dc',
+                        tasteOrange: '#ff5419',
+                        tasteAmber: '#ff7a1b'
                     },
                     fontFamily: {
-                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
-                        mono: ['"JetBrains Mono"', 'monospace']
+                        sans: ['"Plus Jakarta Sans"', 'Inter', '-apple-system', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                        display: ['"Space Grotesk"', 'sans-serif']
                     }
                 }
             }
@@ -40,24 +39,22 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            scroll-behavior: smooth;
         }
 
         body {
             background-color: #000000;
             color: #ffffff;
-            font-family: 'Inter', -apple-system, sans-serif;
+            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
             overflow-x: hidden;
-            selection-background-color: #ffffff;
-            selection-color: #000000;
+            -webkit-font-smoothing: antialiased;
         }
 
         ::selection {
-            background: #ffffff;
-            color: #000000;
+            background: #ff5419;
+            color: #ffffff;
         }
 
-        /* 1-Bit Halftone & Dither Canvas */
+        /* Ambient Bayer 1-Bit Dither Canvas */
         #dither-canvas {
             position: fixed;
             top: 0;
@@ -66,509 +63,578 @@
             height: 100vh;
             pointer-events: none;
             z-index: 1;
-            opacity: 0.8;
+            opacity: 0.55;
         }
 
-        /* Blinking Terminal Cursor */
-        .cursor-blink {
-            display: inline-block;
-            width: 0.55em;
-            height: 1em;
-            background-color: #ffffff;
-            vertical-align: -0.1em;
-            margin-left: 4px;
-            animation: blink 1.1s steps(1, start) infinite;
+        /* Dynamic Island Floating Header */
+        .dynamic-island {
+            position: fixed;
+            top: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(18, 18, 20, 0.88);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-radius: 9999px;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.05);
+            z-index: 100;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0; }
-        }
+        /* 1px Structural Dividers */
+        .taste-border-b { border-bottom: 1px solid rgba(255, 255, 255, 0.09); }
+        .taste-border-t { border-top: 1px solid rgba(255, 255, 255, 0.09); }
+        .taste-border-l { border-left: 1px solid rgba(255, 255, 255, 0.09); }
+        .taste-border-r { border-right: 1px solid rgba(255, 255, 255, 0.09); }
 
-        /* TasteCode 1px Structural Dividers */
-        .taste-border-b { border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
-        .taste-border-t { border-top: 1px solid rgba(255, 255, 255, 0.1); }
-        .taste-border-r { border-right: 1px solid rgba(255, 255, 255, 0.1); }
-        .taste-border-l { border-left: 1px solid rgba(255, 255, 255, 0.1); }
-        
-        .taste-card {
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            background: rgba(9, 9, 11, 0.75);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
+        .taste-box {
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            background: rgba(14, 14, 17, 0.9);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             transition: border-color 0.25s ease, transform 0.25s ease;
         }
-        .taste-card:hover {
-            border-color: rgba(255, 255, 255, 0.28);
+
+        .taste-box:hover {
+            border-color: rgba(255, 255, 255, 0.25);
         }
 
-        /* Warm Radial Glow Layer (TasteSkill "Stop guessing" aesthetic) */
-        .ambient-amber-glow {
+        /* Ambient Glow Layers */
+        .glow-amber-radial {
             position: absolute;
-            width: 600px;
-            height: 600px;
+            width: 750px;
+            height: 750px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(255, 87, 34, 0.18) 0%, rgba(255, 122, 0, 0.08) 35%, transparent 70%);
-            filter: blur(90px);
+            background: radial-gradient(circle, rgba(255, 84, 25, 0.28) 0%, rgba(255, 122, 27, 0.1) 45%, transparent 70%);
+            filter: blur(110px);
             pointer-events: none;
             z-index: 0;
         }
 
-        /* Photo & Fallback Monogram */
-        .portrait-wrapper {
+        /* Terminal Cursor */
+        .cursor-blink {
+            display: inline-block;
+            width: 0.4em;
+            height: 0.95em;
+            background-color: #ffffff;
+            vertical-align: -0.08em;
+            margin-left: 3px;
+            animation: terminalBlink 1s steps(1, start) infinite;
+        }
+
+        @keyframes terminalBlink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        /* Pinned 5-Stage Sticky Container */
+        .stage-scroll-container {
             position: relative;
-            background: #09090b;
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            height: 480vh;
+        }
+
+        .stage-sticky-viewport {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            width: 100%;
+            display: flex;
+            align-items: center;
             overflow: hidden;
+            background-color: #f5f4ef;
+            color: #111111;
+            z-index: 25;
         }
 
-        .portrait-wrapper img {
-            filter: grayscale(100%) contrast(140%) brightness(92%);
-            transition: filter 0.4s ease, transform 0.4s ease;
+        /* Step active bar indicator */
+        .step-bar-active {
+            border-left: 2px solid #ff5419;
+            padding-left: 14px;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .portrait-wrapper:hover img {
-            filter: grayscale(0%) contrast(105%) brightness(100%);
-            transform: scale(1.02);
+        /* Viewport Expansion Card on Scroll (Video 2 animation) */
+        .expand-on-scroll {
+            transform: scale(0.95);
+            opacity: 0.85;
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.6s ease;
         }
 
-        /* Fine Scanline Overlay */
-        .scanlines {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(
-                to bottom,
-                rgba(255,255,255,0),
-                rgba(255,255,255,0) 50%,
-                rgba(0, 0, 0, 0.45) 50%,
-                rgba(0, 0, 0, 0.45)
-            );
-            background-size: 100% 4px;
+        .expand-on-scroll.in-view {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        /* Monumental Outline Typography in Footer */
+        .monumental-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(3.5rem, 14vw, 15rem);
+            line-height: 0.85;
+            font-weight: 800;
+            letter-spacing: -0.05em;
+            text-transform: uppercase;
+            color: transparent;
+            -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.25);
+            user-select: none;
             pointer-events: none;
-            z-index: 3;
-            opacity: 0.55;
+            transition: -webkit-text-stroke 0.4s ease;
+        }
+
+        .monumental-title:hover {
+            -webkit-text-stroke: 1.5px rgba(255, 84, 25, 0.8);
         }
     </style>
 </head>
-<body class="relative min-h-screen text-white bg-pitch">
+<body class="bg-pitch text-white relative selection:bg-orange-500 selection:text-white">
 
-    <!-- Interactive Halftone 1-Bit Canvas Background -->
+    <!-- Interactive Bayer Dither Mesh Canvas -->
     <canvas id="dither-canvas"></canvas>
 
-    <!-- Main Content Container -->
-    <div class="relative z-10 flex flex-col min-h-screen">
+    <!-- ========================================================
+         1. TASTESKILL FLOATING DYNAMIC ISLAND HEADER
+         (Exact match from screenshot: pill layout, dark glass, links + GH counter)
+         ======================================================== -->
+    <div class="dynamic-island px-4 sm:px-6 py-2 flex items-center justify-between gap-4 sm:gap-7 text-xs font-mono max-w-[92vw] sm:max-w-max">
         
-        <!-- Header / Navbar -->
-        <header class="w-full taste-border-b bg-black/85 backdrop-blur-md sticky top-0 z-50">
-            <div class="max-w-7xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
-                
-                <!-- Left: Brand Logo -->
-                <div class="flex items-center gap-3">
-                    <a href="#home" class="flex items-center gap-2.5 text-white font-mono font-medium tracking-tight hover:opacity-85 transition">
-                        <!-- Minimal Geometric Glyph -->
-                        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                            <path d="M12 2L4 7v10l8 5 8-5V7l-8-5zm0 2.5l5.5 3.44v6.88L12 18.25l-5.5-3.43V7.94L12 4.5zM11 9h2v6h-2V9zm-3 2h2v4H8v-4zm6 0h2v4h-2v-4z"/>
-                        </svg>
-                        <span class="font-sans font-bold tracking-tight text-base">Shashank B R</span>
-                    </a>
-                    <span class="hidden sm:inline-flex items-center px-2 py-0.5 text-[11px] font-mono text-zinc-400 bg-zinc-900 border border-zinc-800 rounded">
-                        v2.4.0
-                    </span>
-                </div>
-
-                <!-- Center: Navigation Links -->
-                <nav class="hidden md:flex items-center gap-7 text-[13px] text-zinc-400 font-medium">
-                    <a href="#home" class="hover:text-white transition">Home</a>
-                    <a href="#skills" class="hover:text-white transition">Competencies</a>
-                    <a href="#showcase" class="hover:text-white transition">Design Mode</a>
-                    <a href="#projects" class="hover:text-white transition">Projects</a>
-                    <a href="#contact" class="hover:text-white transition">Contact</a>
-                </nav>
-
-                <!-- Right: Action Buttons (GitHub + LinkedIn) -->
-                <div class="flex items-center gap-2.5">
-                    <!-- GitHub Button -->
-                    <a href="https://github.com/shashankBR16" target="_blank" rel="noopener noreferrer" 
-                       class="px-3 py-1.5 text-xs font-mono font-medium text-zinc-300 border border-zinc-800 hover:border-zinc-500 bg-zinc-950 rounded transition flex items-center gap-1.5"
-                       title="View GitHub Profile">
-                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-                        <span class="hidden sm:inline">GitHub</span>
-                    </a>
-
-                    <!-- LinkedIn Button -->
-                    <a href="https://www.linkedin.com/in/shashank-b-r-0635a2404?utm_source=share_via&utm_content=profile&utm_medium=member_android" 
-                       target="_blank" rel="noopener noreferrer" 
-                       class="px-3.5 py-1.5 text-xs font-semibold text-black bg-white hover:bg-zinc-200 rounded transition font-sans flex items-center gap-1.5 shadow-sm"
-                       title="Connect on LinkedIn">
-                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
-                        <span>LinkedIn</span>
-                    </a>
-                </div>
+        <!-- Left: Brand Logo & Title -->
+        <a href="#home" class="flex items-center gap-2.5 text-white font-sans font-bold hover:text-orange-400 transition">
+            <div class="w-5 h-5 bg-white text-black flex items-center justify-center rounded-sm font-bold text-xs font-mono">
+                ✦
             </div>
-        </header>
+            <span class="tracking-tight text-sm font-semibold">Shashank</span>
+        </a>
 
-        <!-- Hero Section -->
-        <section id="home" class="relative max-w-7xl mx-auto px-5 sm:px-8 pt-12 sm:pt-20 pb-16 flex-1 w-full flex flex-col justify-between">
+        <!-- Middle: Nav Links & Dynamic Island Interactive Modes -->
+        <nav class="hidden md:flex items-center gap-5 text-zinc-300 font-sans text-xs">
+            <a href="#transformation-section" class="hover:text-white transition flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
+                <span>Transformation</span>
+            </a>
+            <a href="#desktop-workspace" class="hover:text-white transition">Workspace</a>
+            <a href="#projects" class="hover:text-white transition">Projects</a>
+            <a href="#faq-section" class="hover:text-white transition">Questions</a>
+            <a href="#contact" class="hover:text-white transition">Contact</a>
+        </nav>
+
+        <!-- Right: GitHub Star & LinkedIn Pill -->
+        <div class="flex items-center gap-2">
+            <a href="https://github.com/shashankBR16" target="_blank" rel="noopener noreferrer" 
+               class="px-2.5 py-1 bg-white text-black font-semibold rounded-full hover:bg-zinc-200 transition flex items-center gap-1.5 text-[11px] font-sans">
+                <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+                <span>GitHub</span>
+                <span class="font-mono text-zinc-600 font-bold ml-0.5">↗</span>
+            </a>
+
+            <a href="https://www.linkedin.com/in/shashank-b-r-0635a2404?utm_source=share_via&utm_content=profile&utm_medium=member_android" 
+               target="_blank" rel="noopener noreferrer" 
+               class="p-1.5 bg-zinc-800 text-zinc-300 hover:text-white rounded-full transition flex items-center justify-center">
+                <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+            </a>
+        </div>
+    </div>
+
+    <!-- Global Content Wrapper -->
+    <div class="relative z-10 flex flex-col min-h-screen pt-20">
+        
+        <!-- ========================================================
+             2. HERO SECTION & SPECIFICATION BAR
+             ======================================================== -->
+        <section id="home" class="relative max-w-7xl mx-auto px-5 sm:px-8 pt-16 sm:pt-24 pb-16 w-full">
             
-            <!-- Amber Glow Backdrop -->
-            <div class="ambient-amber-glow top-0 right-10"></div>
+            <div class="glow-amber-radial top-[-100px] right-[-100px] opacity-70"></div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center relative z-10">
-                
-                <!-- Left Hero Column -->
-                <div class="lg:col-span-7 flex flex-col items-start">
+            <!-- TasteSkill announcement pill -->
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-zinc-900 border border-zinc-800 rounded-full text-xs font-mono text-zinc-300 mb-8 hover:border-orange-500/60 transition cursor-pointer">
+                <span class="w-4 h-4 bg-orange-500 text-black flex items-center justify-center rounded-full text-[10px] font-bold">✦</span>
+                <span>BCA Engineer: Cloud DBs, Mailer REST Pipelines, Zero-Bloat Systems</span>
+                <span class="text-orange-400">&rarr;</span>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center relative z-10">
+                <div class="lg:col-span-8 flex flex-col items-start">
                     
-                    <!-- Availability Pill -->
-                    <div class="flex flex-wrap items-center gap-3 mb-6">
-                        <div class="inline-flex items-center gap-2 bg-zinc-950 border border-zinc-800 px-3 py-1 rounded text-xs font-mono text-zinc-300">
-                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                            <span>Available for Internships & Projects</span>
-                        </div>
-                        <span class="text-xs font-mono text-zinc-500">BCA · Bangalore</span>
-                    </div>
-
-                    <!-- TasteCode Headline with Terminal Cursor -->
                     <h1 class="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-white leading-[1.08] mb-6">
-                        A full-stack engineer for scalable web systems<span class="cursor-blink"></span>
+                        A full-stack engineer for <br class="hidden sm:block">
+                        <span id="hero-typewriter-text" class="text-transparent bg-clip-text bg-gradient-to-r from-white via-zinc-200 to-orange-300">scalable web systems</span><span class="cursor-blink"></span>
                     </h1>
 
-                    <!-- Hero Subtitle -->
                     <p class="text-base sm:text-lg text-zinc-400 leading-relaxed max-w-2xl mb-8 font-normal">
-                        Specialized in relational MySQL architectures, continuous cloud deployments, and transactional mailing pipelines. Built for performance, accuracy, and clean design.
+                        MySQL, Render, Brevo API, and low-latency client architecture. Designed for real transactions, automated cloud pipelines, and persistent database integrity.
                     </p>
 
-                    <!-- TasteSkill CLI Command / Terminal Bar -->
-                    <div class="w-full max-w-md p-1.5 bg-zinc-950 border border-zinc-800 rounded-lg flex items-center justify-between mb-8 font-mono text-xs text-zinc-300">
-                        <div class="flex items-center gap-2.5 px-3 py-1 overflow-x-auto">
-                            <span class="text-zinc-600">$</span>
-                            <span class="text-zinc-400 select-all" id="cli-cmd">npx shashank --contact</span>
+                    <!-- TasteSkill CLI Command Bar -->
+                    <div class="w-full max-w-lg p-2 bg-zinc-950/90 border border-zinc-800 rounded-xl flex items-center justify-between mb-8 font-mono text-xs shadow-xl">
+                        <div class="flex items-center gap-3 px-3 py-1 overflow-x-auto text-zinc-300">
+                            <span class="text-orange-500">$</span>
+                            <span class="text-zinc-300 select-all font-mono" id="cli-cmd-hero">npx shashank --connect</span>
                         </div>
-                        <button onclick="copyCliCommand()" id="copy-cli-btn" class="px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 rounded transition text-xs flex items-center gap-1.5">
-                            <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                            <span id="copy-cli-label">Copy</span>
+                        <button onclick="copyCliText()" id="copy-btn-hero" class="px-3.5 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 rounded-lg transition flex items-center gap-1.5 font-sans">
+                            <span id="copy-label-hero">Copy</span>
                         </button>
                     </div>
 
                     <!-- CTA Buttons -->
                     <div class="flex flex-wrap items-center gap-3">
-                        <a href="#projects" 
-                           class="px-6 py-3 bg-white text-black font-semibold text-xs rounded hover:bg-zinc-200 transition-all flex items-center gap-2">
-                            <span>Explore Builds</span>
+                        <a href="#transformation-section" class="px-6 py-3 bg-white text-black font-semibold text-xs rounded-lg hover:bg-zinc-200 transition font-sans flex items-center gap-2">
+                            <span>Experience Transformation</span>
                             <span class="font-mono text-xs">↓</span>
                         </a>
                         <a href="https://github.com/shashankBR16" target="_blank" rel="noopener noreferrer" 
-                           class="px-5 py-3 bg-zinc-950 text-white font-medium text-xs rounded border border-zinc-800 hover:border-zinc-500 hover:bg-zinc-900 transition-all flex items-center gap-2">
-                            <span>GitHub</span>
-                            <span class="font-mono text-xs text-zinc-500">↗</span>
-                        </a>
-                        <a href="https://www.linkedin.com/in/shashank-b-r-0635a2404?utm_source=share_via&utm_content=profile&utm_medium=member_android" target="_blank" rel="noopener noreferrer" 
-                           class="px-5 py-3 bg-zinc-950 text-white font-medium text-xs rounded border border-zinc-800 hover:border-zinc-500 hover:bg-zinc-900 transition-all flex items-center gap-2">
-                            <span>LinkedIn</span>
+                           class="px-5 py-3 bg-zinc-950 text-white font-medium text-xs rounded-lg border border-zinc-800 hover:border-zinc-500 hover:bg-zinc-900 transition flex items-center gap-2">
+                            <span>GitHub Source</span>
                             <span class="font-mono text-xs text-zinc-500">↗</span>
                         </a>
                     </div>
                 </div>
 
-                <!-- Right Hero Column: Photo with Monogram Fallback -->
-                <div class="lg:col-span-5 flex justify-center lg:justify-end">
-                    <div class="w-full max-w-sm taste-card p-3 rounded-lg relative">
-                        <div class="flex items-center justify-between pb-2 mb-2 taste-border-b text-xs font-mono text-zinc-400">
+                <!-- Right Column: Profile Identity Monogram Frame -->
+                <div class="lg:col-span-4 flex justify-center lg:justify-end">
+                    <div class="taste-box p-4 rounded-2xl w-full max-w-sm relative">
+                        <div class="flex items-center justify-between pb-3 mb-3 taste-border-b text-xs font-mono text-zinc-400">
                             <span class="flex items-center gap-1.5">
-                                <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full"></span>
-                                shashank_br.raw
+                                <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+                                Aiven MySQL Cluster
                             </span>
-                            <span>RELATIONAL ARCH</span>
+                            <span>Online</span>
                         </div>
 
-                        <!-- Portrait Box with Monogram Fallback -->
-                        <div class="portrait-wrapper rounded relative aspect-[4/4.8] w-full flex items-center justify-center bg-zinc-950" id="portrait-frame">
-                            <img src="shashankred.jpg" 
-                                 alt="Shashank B R" 
-                                 class="w-full h-full object-cover object-top relative z-10"
-                                 id="profile-img"
-                                 onerror="handleImgFallback()">
+                        <!-- Monogram Fallback Identity -->
+                        <div class="relative aspect-square w-full rounded-xl overflow-hidden bg-zinc-950 flex flex-col items-center justify-center p-6 text-center border border-zinc-800">
+                            <img src="shashankred.jpg" alt="Shashank B R" 
+                                 class="absolute inset-0 w-full h-full object-cover object-top filter grayscale contrast-125"
+                                 id="profile-avatar"
+                                 onerror="this.style.display='none'; document.getElementById('avatar-fallback').classList.remove('hidden')">
                             
-                            <!-- Graceful Developer Monogram Fallback (Shown if local image is absent) -->
-                            <div id="monogram-fallback" class="hidden absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-0 bg-gradient-to-br from-zinc-900 to-black">
-                                <div class="w-20 h-20 rounded-full border border-zinc-700 bg-zinc-900 flex items-center justify-center font-mono font-bold text-2xl text-zinc-200 mb-3">
+                            <div id="avatar-fallback" class="hidden relative z-10 flex flex-col items-center justify-center">
+                                <div class="w-20 h-20 rounded-full border border-zinc-700 bg-zinc-900 flex items-center justify-center font-mono font-bold text-2xl text-white mb-3">
                                     SBR
                                 </div>
-                                <div class="font-mono text-xs text-zinc-400">Shashank B R</div>
-                                <div class="text-[11px] font-mono text-zinc-600 mt-1">Full-Stack Developer</div>
+                                <div class="font-sans font-bold text-base text-white">Shashank B R</div>
+                                <div class="font-mono text-xs text-orange-400 mt-1">Full-Stack Engineer</div>
+                                <div class="text-[11px] font-mono text-zinc-500 mt-2">Bangalore, IN</div>
                             </div>
-
-                            <div class="scanlines"></div>
                         </div>
 
-                        <div class="mt-3 pt-2 taste-border-t grid grid-cols-2 gap-2 text-[11px] font-mono text-zinc-400">
-                            <div>Focus: MySQL / Cloud</div>
-                            <div class="text-right text-emerald-400">Status: Active</div>
+                        <div class="mt-3 pt-3 taste-border-t grid grid-cols-2 text-[11px] font-mono text-zinc-400">
+                            <div>Relational Engine: MySQL</div>
+                            <div class="text-right text-orange-400">CI/CD: Render</div>
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- TasteCode 4-Column Specification Metrics -->
+            <div class="mt-16 pt-8 taste-border-t grid grid-cols-2 md:grid-cols-4 gap-6 text-left relative z-10 font-mono">
+                <div class="space-y-1">
+                    <div class="text-xs text-zinc-500 uppercase tracking-wider">Education</div>
+                    <div class="text-sm font-semibold text-white">BCA Computer Apps</div>
+                </div>
+                <div class="space-y-1">
+                    <div class="text-xs text-zinc-500 uppercase tracking-wider">Cloud DB</div>
+                    <div class="text-sm font-semibold text-white">Aiven Managed MySQL</div>
+                </div>
+                <div class="space-y-1">
+                    <div class="text-xs text-zinc-500 uppercase tracking-wider">Mailing REST</div>
+                    <div class="text-sm font-semibold text-white">Brevo API Pipeline</div>
+                </div>
+                <div class="space-y-1">
+                    <div class="text-xs text-zinc-500 uppercase tracking-wider">Availability</div>
+                    <div class="text-sm font-semibold text-orange-400">Immediate Internships</div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ========================================================
+             3. EXACT TASTESKILL "FROM DEFAULT TO DESIGNED"
+             SCROLL-DRIVEN TRANSFORMATION (Video 1 & 2 exact match)
+             Warm paper background #f5f4ef, left 5-step rail, right morphing card
+             ======================================================== -->
+        <section id="transformation-section" class="stage-scroll-container w-full">
+            
+            <div class="stage-sticky-viewport">
+                
+                <div class="max-w-7xl mx-auto px-5 sm:px-8 w-full py-8">
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
+                        
+                        <!-- Left Sticky Content Rail -->
+                        <div class="lg:col-span-5 flex flex-col justify-center">
+                            
+                            <!-- TasteSkill Before & After badge -->
+                            <div class="flex items-center gap-2 text-xs font-mono text-orange-600 mb-3 font-semibold">
+                                <span class="w-2 h-2 rounded-full bg-orange-600"></span>
+                                Before and after
+                            </div>
+
+                            <!-- Title -->
+                            <h2 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-zinc-950 mb-8 leading-tight">
+                                From default <br>to designed.
+                            </h2>
+
+                            <!-- 5 Step List with sliding orange indicator bar -->
+                            <div class="space-y-4 font-sans text-sm">
+                                
+                                <!-- Step 1 -->
+                                <div id="trans-step-0" class="step-bar-active cursor-pointer transition-all duration-300" onclick="manualScrollStage(0)">
+                                    <div class="font-bold text-zinc-900 text-base">The default</div>
+                                    <div class="text-xs text-zinc-500 mt-0.5 leading-relaxed">Purple gradient, emoji, gradient text and three glass cards. The page every agent ships.</div>
+                                </div>
+
+                                <!-- Step 2 -->
+                                <div id="trans-step-1" class="pl-4 cursor-pointer transition-all duration-300 opacity-40 hover:opacity-100" onclick="manualScrollStage(1)">
+                                    <div class="font-bold text-zinc-900 text-base">One palette</div>
+                                    <div class="text-xs text-zinc-500 mt-0.5 leading-relaxed">The gradient goes. A warm neutral and one dark accent carry the whole page.</div>
+                                </div>
+
+                                <!-- Step 3 -->
+                                <div id="trans-step-2" class="pl-4 cursor-pointer transition-all duration-300 opacity-40 hover:opacity-100" onclick="manualScrollStage(2)">
+                                    <div class="font-bold text-zinc-900 text-base">Real type</div>
+                                    <div class="text-xs text-zinc-500 mt-0.5 leading-relaxed">Copy that says something, a tighter headline, and no emoji doing the talking.</div>
+                                </div>
+
+                                <!-- Step 4 -->
+                                <div id="trans-step-3" class="pl-4 cursor-pointer transition-all duration-300 opacity-40 hover:opacity-100" onclick="manualScrollStage(3)">
+                                    <div class="font-bold text-zinc-900 text-base">Layout with intent</div>
+                                    <div class="text-xs text-zinc-500 mt-0.5 leading-relaxed">Left-aligned hierarchy and a real product preview instead of three filler cards.</div>
+                                </div>
+
+                                <!-- Step 5 -->
+                                <div id="trans-step-4" class="pl-4 cursor-pointer transition-all duration-300 opacity-40 hover:opacity-100" onclick="manualScrollStage(4)">
+                                    <div class="font-bold text-zinc-900 text-base">The last 10%</div>
+                                    <div class="text-xs text-zinc-500 mt-0.5 leading-relaxed">A note under the button, real tags in the preview, a little depth where it helps. Now it looks designed.</div>
+                                </div>
+
+                            </div>
+
+                            <!-- Scroll prompt indicator -->
+                            <div class="mt-8 text-xs font-mono text-zinc-400 flex items-center gap-2">
+                                <span>↓ Scroll down to morph</span>
+                                <span class="text-zinc-300">·</span>
+                                <span id="progress-percentage-label">0% completed</span>
+                            </div>
+
+                        </div>
+
+                        <!-- Right Morphing Frame -->
+                        <div class="lg:col-span-7 relative">
+                            
+                            <div class="w-full rounded-2xl bg-white border border-[#e4e2d8] shadow-2xl p-6 sm:p-10 min-h-[460px] flex flex-col justify-between transition-all duration-500 relative overflow-hidden" id="trans-card-viewport">
+                                
+                                <!-- Dynamic Injected Stage View -->
+                                <div id="trans-stage-canvas" class="transition-all duration-500">
+                                    <!-- Injected by JavaScript engine -->
+                                </div>
+
+                                <!-- Bottom Status Bar with Step X of 5 Pill -->
+                                <div class="pt-6 border-t border-zinc-100 flex items-center justify-between mt-auto">
+                                    <span class="text-xs font-mono text-zinc-400" id="trans-meta-note">Free for personal use. No card needed.</span>
+                                    <span class="px-3 py-1 bg-zinc-900 text-white font-mono text-xs rounded-full shadow-sm" id="trans-step-counter">
+                                        Step 1 of 5
+                                    </span>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
 
             </div>
 
-            <!-- TasteCode Hero Specification Divider Grid -->
-            <div class="mt-16 pt-8 taste-border-t grid grid-cols-2 md:grid-cols-4 gap-6 text-left relative z-10">
-                <div class="space-y-1">
-                    <div class="text-xs font-mono text-zinc-500 uppercase tracking-wider">Version</div>
-                    <div class="text-sm font-semibold text-white font-mono">v2.4.0 (2026)</div>
+        </section>
+
+        <!-- ========================================================
+             4. TASTECODE DESKTOP APP WORKSPACE & EXPANSION BOXES
+             (Video 2: 00:00 - 00:03 - Expand on viewport scroll, IDE split)
+             ======================================================== -->
+        <section id="desktop-workspace" class="max-w-7xl mx-auto px-5 sm:px-8 py-28 w-full relative">
+            
+            <div class="glow-amber-radial top-10 left-1/2 -translate-x-1/2 opacity-40"></div>
+
+            <!-- TasteCode Box Header -->
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4 relative z-10">
+                <div>
+                    <div class="flex items-center gap-2 text-xs font-mono text-zinc-400 mb-2">
+                        <span class="w-4 h-4 bg-white text-black font-mono font-bold flex items-center justify-center rounded-sm text-[10px]">T</span>
+                        <span>TasteCode by the Taste Skill team · Built for creative work</span>
+                    </div>
+                    <h2 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white">
+                        Taste Skill as a desktop app.
+                    </h2>
+                    <p class="text-zinc-400 text-sm sm:text-base mt-2 max-w-xl">
+                        A workspace for Codex, Claude Code and Grok with a design agent built in. Free and open source.
+                    </p>
                 </div>
-                <div class="space-y-1">
-                    <div class="text-xs font-mono text-zinc-500 uppercase tracking-wider">Platforms</div>
-                    <div class="text-sm font-semibold text-white">Cloud, Node.js, Web</div>
-                </div>
-                <div class="space-y-1">
-                    <div class="text-xs font-mono text-zinc-500 uppercase tracking-wider">Relational DB</div>
-                    <div class="text-sm font-semibold text-white">MySQL (Aiven Cloud)</div>
-                </div>
-                <div class="space-y-1">
-                    <div class="text-xs font-mono text-zinc-500 uppercase tracking-wider">Direct Contact</div>
-                    <div class="text-sm font-semibold text-zinc-300 font-mono truncate">shashank361902@gmail.com</div>
+                
+                <div class="flex items-center gap-3">
+                    <a href="https://sophisticated-tracker.onrender.com" target="_blank" rel="noopener noreferrer" 
+                       class="px-4 py-2 bg-white text-black font-semibold text-xs rounded-lg hover:bg-zinc-200 transition">
+                        Download TasteCode ↓
+                    </a>
+                    <a href="https://github.com/shashankBR16" target="_blank" rel="noopener noreferrer" 
+                       class="px-4 py-2 bg-zinc-900 border border-zinc-800 text-zinc-300 font-mono text-xs rounded-lg hover:text-white transition">
+                        Source ↗
+                    </a>
                 </div>
             </div>
+
+            <!-- Viewport Expanding IDE Container (Video 2 animation) -->
+            <div class="expand-on-scroll taste-box rounded-2xl overflow-hidden border border-zinc-800 shadow-2xl relative z-10" id="desktop-ide-box">
+                
+                <!-- macOS Chrome Bar -->
+                <div class="px-5 py-3 taste-border-b bg-zinc-950 flex flex-wrap items-center justify-between gap-3 text-xs font-mono text-zinc-400">
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-red-500/80"></span>
+                        <span class="w-3 h-3 rounded-full bg-yellow-500/80"></span>
+                        <span class="w-3 h-3 rounded-full bg-green-500/80"></span>
+                        <span class="ml-3 font-semibold text-white">Böhne & Söhne website ▾</span>
+                    </div>
+
+                    <div class="flex items-center gap-2 bg-zinc-900 px-3 py-1 rounded-md border border-zinc-800 text-zinc-300">
+                        <span class="text-orange-500">⚡</span>
+                        <span>Browser</span>
+                        <span class="text-zinc-600">|</span>
+                        <span>Diff</span>
+                    </div>
+
+                    <div class="flex items-center gap-3 text-zinc-400">
+                        <span>1440</span>
+                        <span>768</span>
+                        <span>390</span>
+                    </div>
+                </div>
+
+                <!-- Main IDE Grid: Sidebar + Diff + Browser Viewport -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 min-h-[480px]">
+                    
+                    <!-- Left Sidebar (Video 2 00:01) -->
+                    <div class="lg:col-span-3 p-5 taste-border-r bg-zinc-950/70 font-mono text-xs space-y-4">
+                        <div class="space-y-1.5">
+                            <div class="text-zinc-500 text-[11px] uppercase tracking-wider">Actions</div>
+                            <div class="text-zinc-300 hover:text-white cursor-pointer py-1 flex items-center gap-2">
+                                <span>+</span> New chat
+                            </div>
+                            <div class="text-zinc-300 hover:text-white cursor-pointer py-1 flex items-center gap-2">
+                                <span>+</span> New project
+                            </div>
+                            <div class="text-zinc-300 hover:text-white cursor-pointer py-1 flex items-center gap-2">
+                                <span>⎇</span> Pull requests
+                            </div>
+                        </div>
+
+                        <div class="pt-4 taste-border-t space-y-2">
+                            <div class="text-zinc-500 text-[11px] uppercase tracking-wider">Projects</div>
+                            <div class="p-2 bg-zinc-900 border border-zinc-800 rounded text-white font-semibold flex items-center justify-between">
+                                <span>bohne-soehne</span>
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                            </div>
+                            <div class="px-2 py-1 text-zinc-400 hover:text-white cursor-pointer">sophisticated-tracker</div>
+                            <div class="px-2 py-1 text-zinc-400 hover:text-white cursor-pointer">portfolio-v2</div>
+                        </div>
+
+                        <div class="pt-4 taste-border-t text-[11px] text-zinc-500 space-y-1">
+                            <div>Brief locked in. Starting design.</div>
+                            <div class="text-emerald-400">✓ Creating brand direction</div>
+                            <div class="text-emerald-400">✓ Planning the page</div>
+                            <div class="text-emerald-400">✓ Gathering assets</div>
+                        </div>
+                    </div>
+
+                    <!-- Middle: Code Diff Changes (Video 2 00:02) -->
+                    <div class="lg:col-span-4 p-5 taste-border-r bg-black font-mono text-xs space-y-3">
+                        <div class="flex items-center justify-between pb-2 border-b border-zinc-900 text-zinc-400">
+                            <span>Changes</span>
+                            <span class="text-emerald-400">+58 -21</span>
+                        </div>
+
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between p-2 bg-zinc-950 border border-zinc-900 rounded">
+                                <span class="text-zinc-300">.taste/brief.json</span>
+                                <span class="text-emerald-400">+24</span>
+                            </div>
+                            <div class="flex items-center justify-between p-2 bg-zinc-950 border border-zinc-900 rounded">
+                                <span class="text-zinc-300">.taste/brand.json</span>
+                                <span class="text-emerald-400">+31</span>
+                            </div>
+                            <div class="flex items-center justify-between p-2 bg-zinc-950 border border-zinc-900 rounded">
+                                <span class="text-zinc-300">.taste/page.json</span>
+                                <span class="text-emerald-400">+58</span>
+                            </div>
+                            <div class="flex items-center justify-between p-2 bg-zinc-950 border border-zinc-900 rounded">
+                                <span class="text-zinc-300">.taste/assets.json</span>
+                                <span class="text-emerald-400">+19</span>
+                            </div>
+                        </div>
+
+                        <div class="p-3 bg-zinc-950/80 border border-zinc-900 rounded text-[11px] text-zinc-500 space-y-1 mt-4">
+                            <div class="text-zinc-400">// Automatic responsive verification</div>
+                            <div>Checked 1440px desktop breakpoint: PASSED</div>
+                            <div>Checked 390px mobile layout: PASSED</div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Live Interactive App Preview -->
+                    <div class="lg:col-span-5 p-6 bg-zinc-950 flex flex-col justify-center">
+                        <div class="border border-zinc-800 rounded-xl p-6 bg-black">
+                            <div class="text-xs font-mono text-orange-400 mb-2 font-semibold">TWENTY SEATS AND A ROASTER</div>
+                            <h3 class="text-2xl font-bold text-white mb-2">Böhne & Söhne</h3>
+                            <p class="text-xs text-zinc-400 mb-4 leading-relaxed font-normal">
+                                Single-origin micro roastery. Storefront, roast day schedule, and counter order terminal.
+                            </p>
+
+                            <div class="grid grid-cols-2 gap-2 mb-4 text-xs font-mono">
+                                <div class="p-2.5 bg-zinc-900 rounded border border-zinc-800">
+                                    <div class="text-zinc-500 text-[10px]">NEXT ROAST</div>
+                                    <div class="text-white font-bold">Thu 08:00</div>
+                                </div>
+                                <div class="p-2.5 bg-zinc-900 rounded border border-zinc-800">
+                                    <div class="text-zinc-500 text-[10px]">STOCK</div>
+                                    <div class="text-emerald-400 font-bold">14 Bags Left</div>
+                                </div>
+                            </div>
+
+                            <button class="w-full py-2 bg-white text-black font-semibold text-xs rounded hover:bg-zinc-200 transition">
+                                View Interactive Counter
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
         </section>
 
         <!-- Divider Line -->
         <div class="w-full taste-border-b"></div>
 
         <!-- ========================================================
-             TASTESKILL VIDEO ANIMATION: "FROM DEFAULT TO DESIGNED"
-             Interactive Before & After Morphing Stepper (00:08 - 00:15)
+             5. SHASHANK'S PRODUCTION BUILDS
              ======================================================== -->
-        <section id="showcase" class="max-w-7xl mx-auto px-5 sm:px-8 py-20 w-full relative">
-            <div class="ambient-amber-glow -top-32 -left-20 opacity-60"></div>
-
-            <!-- Section Eyebrow & Header -->
-            <div class="mb-12 relative z-10">
-                <div class="inline-flex items-center gap-2 text-xs font-mono text-orange-400 uppercase tracking-widest mb-3">
-                    <span class="w-2 h-2 rounded-full bg-orange-500"></span>
-                    Interactive Transformation
-                </div>
-                <h2 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white mb-3">
-                    From default to designed.
-                </h2>
-                <p class="text-sm sm:text-base text-zinc-400 max-w-xl">
-                    See how generic, bloated AI templates are elevated into production-grade interfaces with typographic restraint, clean palettes, and intentional hierarchy.
-                </p>
-            </div>
-
-            <!-- Stepper Container -->
-            <div class="taste-card rounded-2xl p-6 sm:p-10 relative z-10 bg-zinc-950/80">
-                
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                    
-                    <!-- Left Stepper Navigation Column -->
-                    <div class="lg:col-span-4 flex flex-col justify-between space-y-6">
-                        <div class="space-y-2">
-                            <!-- Step 1: The Default -->
-                            <button onclick="setTransformationStep(0)" id="step-btn-0" 
-                                    class="w-full text-left p-3.5 rounded-lg border transition-all flex flex-col border-zinc-800 bg-zinc-900/40 text-zinc-400 hover:border-zinc-600">
-                                <span class="text-xs font-mono text-zinc-500 mb-1">01 / BASELINE</span>
-                                <span class="font-semibold text-sm text-white">The default</span>
-                                <span class="text-xs text-zinc-400 mt-1">Purple gradient, generic AI emoji, three cards.</span>
-                            </button>
-
-                            <!-- Step 2: One Palette -->
-                            <button onclick="setTransformationStep(1)" id="step-btn-1" 
-                                    class="w-full text-left p-3.5 rounded-lg border transition-all flex flex-col border-zinc-800/60 bg-transparent text-zinc-400 hover:border-zinc-600">
-                                <span class="text-xs font-mono text-zinc-500 mb-1">02 / COLOR RESTRAINT</span>
-                                <span class="font-semibold text-sm text-white">One palette</span>
-                                <span class="text-xs text-zinc-400 mt-1">The gradient goes. A warm neutral and single dark accent.</span>
-                            </button>
-
-                            <!-- Step 3: Real Type -->
-                            <button onclick="setTransformationStep(2)" id="step-btn-2" 
-                                    class="w-full text-left p-3.5 rounded-lg border transition-all flex flex-col border-zinc-800/60 bg-transparent text-zinc-400 hover:border-zinc-600">
-                                <span class="text-xs font-mono text-zinc-500 mb-1">03 / TYPOGRAPHY</span>
-                                <span class="font-semibold text-sm text-white">Real type</span>
-                                <span class="text-xs text-zinc-400 mt-1">Copy that says something, tighter leading, no emoji talking.</span>
-                            </button>
-
-                            <!-- Step 4: The Last 10% -->
-                            <button onclick="setTransformationStep(3)" id="step-btn-3" 
-                                    class="w-full text-left p-3.5 rounded-lg border transition-all flex flex-col border-zinc-800/60 bg-transparent text-zinc-400 hover:border-zinc-600">
-                                <span class="text-xs font-mono text-zinc-500 mb-1">04 / SYSTEM POLISH</span>
-                                <span class="font-semibold text-sm text-white">The last 10%</span>
-                                <span class="text-xs text-zinc-400 mt-1">Monospace metadata, real tags, subtle depth. Now it looks designed.</span>
-                            </button>
-                        </div>
-
-                        <!-- Step Controls / Quick Jump -->
-                        <div class="pt-4 taste-border-t flex items-center justify-between text-xs font-mono text-zinc-400">
-                            <span id="step-counter-label">Step 1 of 4</span>
-                            <div class="flex items-center gap-2">
-                                <button onclick="prevStep()" class="px-2.5 py-1 bg-zinc-900 border border-zinc-800 hover:border-zinc-600 rounded transition">&larr;</button>
-                                <button onclick="nextStep()" class="px-2.5 py-1 bg-zinc-900 border border-zinc-800 hover:border-zinc-600 rounded transition">&rarr;</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Right Interactive Preview Frame: Morphs smoothly across steps -->
-                    <div class="lg:col-span-8">
-                        <div class="taste-card rounded-xl overflow-hidden transition-all duration-500 min-h-[440px] flex flex-col justify-between" id="preview-stage">
-                            
-                            <!-- Browser Chrome Bar -->
-                            <div class="px-4 py-3 taste-border-b bg-zinc-900/60 flex items-center justify-between font-mono text-xs text-zinc-400" id="preview-chrome">
-                                <div class="flex items-center gap-2">
-                                    <span class="w-2.5 h-2.5 rounded-full bg-zinc-700"></span>
-                                    <span class="w-2.5 h-2.5 rounded-full bg-zinc-700"></span>
-                                    <span class="w-2.5 h-2.5 rounded-full bg-zinc-700"></span>
-                                    <span class="ml-2 text-zinc-500" id="preview-domain">noteflow.app // preview</span>
-                                </div>
-                                <span class="text-[11px] px-2 py-0.5 rounded bg-zinc-800 text-zinc-300" id="step-badge-indicator">
-                                    Before: Generic Template
-                                </span>
-                            </div>
-
-                            <!-- Preview Dynamic Content Box -->
-                            <div class="p-6 sm:p-10 transition-all duration-500 flex-1 flex flex-col justify-center" id="preview-content-area">
-                                
-                                <!-- Morphable Content Structure -->
-                                <div id="morph-container" class="transition-all duration-500 space-y-6">
-                                    <!-- Dynamic inner content injected via JavaScript -->
-                                </div>
-
-                            </div>
-
-                            <!-- Bottom Stage Status Bar -->
-                            <div class="px-6 py-3 taste-border-t bg-zinc-950 flex flex-wrap items-center justify-between gap-2 text-xs font-mono text-zinc-500">
-                                <span id="preview-status-text">Status: Rendering step 1 defaults</span>
-                                <button onclick="toggleBeforeAfter()" class="text-zinc-300 hover:text-white underline font-medium">
-                                    Instant Compare: Before &harr; After
-                                </button>
-                            </div>
-
-                        </div>
-                    </div>
-
-                </div>
-
-            </div>
-        </section>
-
-        <!-- Divider Line -->
-        <div class="w-full taste-border-b"></div>
-
-        <!-- Competencies Section -->
-        <section id="skills" class="max-w-7xl mx-auto px-5 sm:px-8 py-20 w-full">
+        <section id="projects" class="max-w-7xl mx-auto px-5 sm:px-8 py-24 w-full">
             <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
                 <div>
-                    <div class="text-xs font-mono text-zinc-400 uppercase tracking-widest mb-2 flex items-center gap-2">
-                        <span class="w-1.5 h-1.5 bg-white"></span>
-                        Engineering Mastery
+                    <div class="text-xs font-mono text-orange-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+                        <span class="w-1.5 h-1.5 bg-orange-500"></span>
+                        Production Code
                     </div>
-                    <h2 class="text-3xl sm:text-4xl font-bold tracking-tight text-white">Core Competencies</h2>
+                    <h2 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white">Featured Builds</h2>
                 </div>
-                <p class="text-sm text-zinc-400 max-w-md font-normal leading-relaxed">
-                    Technologies practiced extensively in production builds with strong emphasis on relational integrity and low-latency deployments.
-                </p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-                <!-- Skill 1 -->
-                <div class="taste-card p-6 rounded-lg flex flex-col justify-between">
-                    <div>
-                        <div class="font-mono text-xs text-zinc-500 mb-6 flex items-center justify-between">
-                            <span>01 // CLIENT</span>
-                            <span class="text-zinc-600">[ES6+]</span>
-                        </div>
-                        <h3 class="text-lg font-bold text-white mb-2">Frontend Systems</h3>
-                        <p class="text-sm text-zinc-400 leading-relaxed mb-6">
-                            Semantic HTML5, modular responsive CSS3 design tokens, asynchronous DOM logic, and Canvas 2D graphics.
-                        </p>
-                    </div>
-                    <div class="flex flex-wrap gap-1.5 pt-4 taste-border-t">
-                        <span class="px-2 py-0.5 text-[11px] font-mono bg-zinc-900 border border-zinc-800 text-zinc-300 rounded">HTML5</span>
-                        <span class="px-2 py-0.5 text-[11px] font-mono bg-zinc-900 border border-zinc-800 text-zinc-300 rounded">CSS3</span>
-                        <span class="px-2 py-0.5 text-[11px] font-mono bg-zinc-900 border border-zinc-800 text-zinc-300 rounded">Vanilla JS</span>
-                    </div>
-                </div>
-
-                <!-- Skill 2 -->
-                <div class="taste-card p-6 rounded-lg flex flex-col justify-between">
-                    <div>
-                        <div class="font-mono text-xs text-zinc-500 mb-6 flex items-center justify-between">
-                            <span>02 // DATA</span>
-                            <span class="text-zinc-600">[SQL]</span>
-                        </div>
-                        <h3 class="text-lg font-bold text-white mb-2">Relational Databases</h3>
-                        <p class="text-sm text-zinc-400 leading-relaxed mb-6">
-                            Schema normalization, foreign key constraints, ACID compliance, and query administration with MySQL Workbench.
-                        </p>
-                    </div>
-                    <div class="flex flex-wrap gap-1.5 pt-4 taste-border-t">
-                        <span class="px-2 py-0.5 text-[11px] font-mono bg-zinc-900 border border-zinc-800 text-zinc-300 rounded">MySQL</span>
-                        <span class="px-2 py-0.5 text-[11px] font-mono bg-zinc-900 border border-zinc-800 text-zinc-300 rounded">Workbench</span>
-                        <span class="px-2 py-0.5 text-[11px] font-mono bg-zinc-900 border border-zinc-800 text-zinc-300 rounded">Aiven Cloud</span>
-                    </div>
-                </div>
-
-                <!-- Skill 3 -->
-                <div class="taste-card p-6 rounded-lg flex flex-col justify-between">
-                    <div>
-                        <div class="font-mono text-xs text-zinc-500 mb-6 flex items-center justify-between">
-                            <span>03 // CLOUD</span>
-                            <span class="text-zinc-600">[DEVOPS]</span>
-                        </div>
-                        <h3 class="text-lg font-bold text-white mb-2">Cloud Infrastructure</h3>
-                        <p class="text-sm text-zinc-400 leading-relaxed mb-6">
-                            Web service hosting on Render, managed cloud databases on Aiven, and automated continuous delivery from GitHub.
-                        </p>
-                    </div>
-                    <div class="flex flex-wrap gap-1.5 pt-4 taste-border-t">
-                        <span class="px-2 py-0.5 text-[11px] font-mono bg-zinc-900 border border-zinc-800 text-zinc-300 rounded">Render</span>
-                        <span class="px-2 py-0.5 text-[11px] font-mono bg-zinc-900 border border-zinc-800 text-zinc-300 rounded">GitHub Pages</span>
-                        <span class="px-2 py-0.5 text-[11px] font-mono bg-zinc-900 border border-zinc-800 text-zinc-300 rounded">CI/CD</span>
-                    </div>
-                </div>
-
-                <!-- Skill 4 -->
-                <div class="taste-card p-6 rounded-lg flex flex-col justify-between">
-                    <div>
-                        <div class="font-mono text-xs text-zinc-500 mb-6 flex items-center justify-between">
-                            <span>04 // PROTOCOLS</span>
-                            <span class="text-zinc-600">[REST]</span>
-                        </div>
-                        <h3 class="text-lg font-bold text-white mb-2">APIs & Version Control</h3>
-                        <p class="text-sm text-zinc-400 leading-relaxed mb-6">
-                            Transactional mailing with Brevo RESTful APIs, JSON communication, and clean Git branch workflows.
-                        </p>
-                    </div>
-                    <div class="flex flex-wrap gap-1.5 pt-4 taste-border-t">
-                        <span class="px-2 py-0.5 text-[11px] font-mono bg-zinc-900 border border-zinc-800 text-zinc-300 rounded">Brevo API</span>
-                        <span class="px-2 py-0.5 text-[11px] font-mono bg-zinc-900 border border-zinc-800 text-zinc-300 rounded">REST</span>
-                        <span class="px-2 py-0.5 text-[11px] font-mono bg-zinc-900 border border-zinc-800 text-zinc-300 rounded">Git VCS</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Divider Line -->
-        <div class="w-full taste-border-b"></div>
-
-        <!-- Featured Projects Section -->
-        <section id="projects" class="max-w-7xl mx-auto px-5 sm:px-8 py-20 w-full">
-            <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
-                <div>
-                    <div class="text-xs font-mono text-zinc-400 uppercase tracking-widest mb-2 flex items-center gap-2">
-                        <span class="w-1.5 h-1.5 bg-white"></span>
-                        Production Deployments
-                    </div>
-                    <h2 class="text-3xl sm:text-4xl font-bold tracking-tight text-white">Featured Work</h2>
-                </div>
-                <div class="text-xs font-mono text-zinc-500">2 LIVE PRODUCTION APPLICATIONS</div>
+                <div class="text-xs font-mono text-zinc-500">LIVE CLOUD APPLICATIONS</div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 
-                <!-- Project 1: Tracking App -->
-                <div class="taste-card p-7 sm:p-8 rounded-lg flex flex-col justify-between group">
+                <!-- Build 1: Sophisticated Tracker -->
+                <div class="taste-box p-8 rounded-2xl flex flex-col justify-between group">
                     <div>
                         <div class="flex items-center justify-between pb-4 mb-4 taste-border-b">
                             <span class="px-2.5 py-1 text-xs font-mono text-zinc-300 bg-zinc-900 border border-zinc-800 rounded">
-                                Full-Stack Cloud Application
+                                Full-Stack Architecture
                             </span>
                             <span class="text-xs font-mono text-emerald-400 flex items-center gap-1.5">
                                 <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span>
@@ -576,44 +642,44 @@
                             </span>
                         </div>
 
-                        <h3 class="text-2xl font-bold text-white mb-3 group-hover:text-zinc-200 transition">
+                        <h3 class="text-2xl font-bold text-white mb-3">
                             Interactive Tracking & Notification Platform
                         </h3>
 
-                        <p class="text-sm text-zinc-400 leading-relaxed mb-6">
-                            A production web service managing real-time relational state with persistent cloud storage and automated transactional mailing notifications.
+                        <p class="text-sm text-zinc-400 leading-relaxed mb-6 font-normal">
+                            Production full-stack platform managing real-time transactional records, automated email notification dispatch, and persistent cloud storage.
                         </p>
 
                         <ul class="space-y-2 mb-6 text-xs text-zinc-300 font-mono">
                             <li class="flex items-start gap-2">
-                                <span class="text-zinc-500">&gt;</span>
-                                <span>Async JavaScript frontend fetching and submitting transactional records.</span>
+                                <span class="text-orange-500">&gt;</span>
+                                <span>Configured dynamic async JavaScript frontend fetching and submitting transactional records.</span>
                             </li>
                             <li class="flex items-start gap-2">
-                                <span class="text-zinc-500">&gt;</span>
-                                <span>Relational database modeled in MySQL Workbench, hosted on Aiven Cloud.</span>
+                                <span class="text-orange-500">&gt;</span>
+                                <span>Designed relational schema and automated queries via MySQL Workbench.</span>
                             </li>
                             <li class="flex items-start gap-2">
-                                <span class="text-zinc-500">&gt;</span>
-                                <span>Integrated Brevo REST API for automated transactional user notifications.</span>
+                                <span class="text-orange-500">&gt;</span>
+                                <span>Configured persistent MySQL cluster hosted securely on Aiven Cloud.</span>
                             </li>
                             <li class="flex items-start gap-2">
-                                <span class="text-zinc-500">&gt;</span>
-                                <span>Automated CI/CD linking GitHub repository directly to Render Cloud.</span>
+                                <span class="text-orange-500">&gt;</span>
+                                <span>Integrated Brevo REST API for triggered transactional user confirmation emails.</span>
                             </li>
                         </ul>
 
                         <div class="flex flex-wrap gap-2 mb-6">
-                            <span class="px-2 py-1 text-[11px] font-mono bg-zinc-900 text-zinc-400 border border-zinc-800 rounded">MySQL</span>
-                            <span class="px-2 py-1 text-[11px] font-mono bg-zinc-900 text-zinc-400 border border-zinc-800 rounded">Aiven Cloud</span>
+                            <span class="px-2 py-1 text-[11px] font-mono bg-zinc-900 text-zinc-400 border border-zinc-800 rounded">MySQL 8.0</span>
+                            <span class="px-2 py-1 text-[11px] font-mono bg-zinc-900 text-zinc-400 border border-zinc-800 rounded">Aiven DB</span>
                             <span class="px-2 py-1 text-[11px] font-mono bg-zinc-900 text-zinc-400 border border-zinc-800 rounded">Brevo API</span>
-                            <span class="px-2 py-1 text-[11px] font-mono bg-zinc-900 text-zinc-400 border border-zinc-800 rounded">Render</span>
+                            <span class="px-2 py-1 text-[11px] font-mono bg-zinc-900 text-zinc-400 border border-zinc-800 rounded">Render Cloud</span>
                         </div>
                     </div>
 
                     <div class="pt-4 taste-border-t flex items-center justify-between">
                         <a href="https://sophisticated-tracker.onrender.com" target="_blank" rel="noopener noreferrer"
-                           class="text-xs font-mono font-semibold text-white hover:text-zinc-300 inline-flex items-center gap-1.5 transition">
+                           class="text-xs font-mono font-semibold text-white hover:text-orange-400 inline-flex items-center gap-1.5 transition">
                             Launch Live Deployment <span>↗</span>
                         </a>
                         <a href="https://github.com/shashankBR16" target="_blank" rel="noopener noreferrer"
@@ -623,49 +689,48 @@
                     </div>
                 </div>
 
-                <!-- Project 2: Developer Portfolio v2 -->
-                <div class="taste-card p-7 sm:p-8 rounded-lg flex flex-col justify-between group">
+                <!-- Build 2: Developer Portfolio v2 -->
+                <div class="taste-box p-8 rounded-2xl flex flex-col justify-between group">
                     <div>
                         <div class="flex items-center justify-between pb-4 mb-4 taste-border-b">
                             <span class="px-2.5 py-1 text-xs font-mono text-zinc-300 bg-zinc-900 border border-zinc-800 rounded">
-                                Web Systems & Graphics
+                                Systems & Visual Canvas
                             </span>
                             <span class="text-xs font-mono text-zinc-400 flex items-center gap-1.5">
                                 <span class="w-1.5 h-1.5 bg-white rounded-full"></span>
-                                Production v2.4
+                                Production v2.0
                             </span>
                         </div>
 
-                        <h3 class="text-2xl font-bold text-white mb-3 group-hover:text-zinc-200 transition">
-                            TasteCode Engine & Developer Identity
+                        <h3 class="text-2xl font-bold text-white mb-3">
+                            Interactive Developer Portfolio v2
                         </h3>
 
-                        <p class="text-sm text-zinc-400 leading-relaxed mb-6">
-                            Personal web platform engineered with raw HTML5 canvas 1-bit Bayer matrix dithering, an interactive state stepper, and zero external framework bloat.
+                        <p class="text-sm text-zinc-400 leading-relaxed mb-6 font-normal">
+                            An engineering portfolio designed with custom glassmorphism styling, ambient canvas graphics, and zero external framework dependencies.
                         </p>
 
                         <ul class="space-y-2 mb-6 text-xs text-zinc-300 font-mono">
                             <li class="flex items-start gap-2">
-                                <span class="text-zinc-500">&gt;</span>
-                                <span>Interactive Bayer 4x4 matrix dithering algorithm running at 60 FPS.</span>
+                                <span class="text-orange-500">&gt;</span>
+                                <span>Integrated interactive 3D physics tilt on user pointer events.</span>
                             </li>
                             <li class="flex items-start gap-2">
-                                <span class="text-zinc-500">&gt;</span>
-                                <span>Dynamic before-and-after morphing preview inspired by TasteSkill.</span>
+                                <span class="text-orange-500">&gt;</span>
+                                <span>Engineered lightweight ambient particle constellation system in raw HTML5 canvas.</span>
                             </li>
                             <li class="flex items-start gap-2">
-                                <span class="text-zinc-500">&gt;</span>
-                                <span>Integrated micro-terminal blinking cursor and interactive copy states.</span>
+                                <span class="text-orange-500">&gt;</span>
+                                <span>Architected responsive dark design with pure modular CSS custom properties.</span>
                             </li>
                             <li class="flex items-start gap-2">
-                                <span class="text-zinc-500">&gt;</span>
-                                <span>Sub-second paint times hosted directly via GitHub Pages CDN.</span>
+                                <span class="text-orange-500">&gt;</span>
+                                <span>Automated deployment pipeline hosted on GitHub Pages with sub-second paint times.</span>
                             </li>
                         </ul>
 
                         <div class="flex flex-wrap gap-2 mb-6">
-                            <span class="px-2 py-1 text-[11px] font-mono bg-zinc-900 text-zinc-400 border border-zinc-800 rounded">Canvas API</span>
-                            <span class="px-2 py-1 text-[11px] font-mono bg-zinc-900 text-zinc-400 border border-zinc-800 rounded">Bayer Matrix</span>
+                            <span class="px-2 py-1 text-[11px] font-mono bg-zinc-900 text-zinc-400 border border-zinc-800 rounded">HTML5 Canvas</span>
                             <span class="px-2 py-1 text-[11px] font-mono bg-zinc-900 text-zinc-400 border border-zinc-800 rounded">Vanilla JS</span>
                             <span class="px-2 py-1 text-[11px] font-mono bg-zinc-900 text-zinc-400 border border-zinc-800 rounded">GitHub Pages</span>
                         </div>
@@ -673,7 +738,7 @@
 
                     <div class="pt-4 taste-border-t flex items-center justify-between">
                         <a href="https://shashankbr16.github.io/portfolio-website/" target="_blank" rel="noopener noreferrer"
-                           class="text-xs font-mono font-semibold text-white hover:text-zinc-300 inline-flex items-center gap-1.5 transition">
+                           class="text-xs font-mono font-semibold text-white hover:text-orange-400 inline-flex items-center gap-1.5 transition">
                             Explore Deployment <span>↗</span>
                         </a>
                         <a href="https://github.com/shashankBR16" target="_blank" rel="noopener noreferrer"
@@ -689,91 +754,175 @@
         <!-- Divider Line -->
         <div class="w-full taste-border-b"></div>
 
-        <!-- Contact Section -->
-        <section id="contact" class="max-w-7xl mx-auto px-5 sm:px-8 py-20 w-full relative">
-            <div class="ambient-amber-glow bottom-0 right-1/4 opacity-40"></div>
-
-            <div class="taste-card p-8 sm:p-12 rounded-2xl max-w-3xl mx-auto relative z-10 overflow-hidden">
-                <div class="font-mono text-xs text-zinc-500 mb-4 flex items-center justify-between pb-3 taste-border-b">
-                    <span>CONNECT // SHASHANK_B_R</span>
-                    <span class="text-emerald-400">STATUS: OPEN FOR WORK</span>
+        <!-- ========================================================
+             6. COMMON QUESTIONS ACCORDIONS (Video 2: 00:04 - 00:05)
+             ======================================================== -->
+        <section id="faq-section" class="max-w-4xl mx-auto px-5 sm:px-8 py-24 w-full">
+            
+            <div class="text-center mb-14">
+                <div class="inline-flex items-center gap-2 text-xs font-mono text-orange-500 uppercase tracking-widest mb-2 font-semibold">
+                    <span class="w-2 h-2 rounded-full bg-orange-500"></span>
+                    Questions
                 </div>
-
-                <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-4">
-                    Let's collaborate on high-performance systems.
+                <h2 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white">
+                    Common questions.
                 </h2>
-                
-                <p class="text-zinc-400 text-sm leading-relaxed mb-8 max-w-xl">
-                    I am actively seeking software engineering internships, full-stack development roles, and database architecture projects. Reach out directly or connect on LinkedIn.
-                </p>
+            </div>
 
-                <!-- Copy-able Email Terminal Bar -->
-                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 p-2 bg-zinc-950 border border-zinc-800 rounded-lg mb-8">
-                    <div class="flex items-center gap-2 px-3 py-2 text-zinc-400 font-mono text-xs flex-1">
-                        <span class="text-zinc-600">$</span>
-                        <span class="text-white select-all" id="email-address">shashank361902@gmail.com</span>
+            <!-- Accordion List -->
+            <div class="space-y-3 font-sans">
+                
+                <div class="taste-box rounded-xl p-5 cursor-pointer" onclick="toggleAccordion('faq-0')">
+                    <div class="flex items-center justify-between font-bold text-sm sm:text-base text-white">
+                        <span>What is Shashank's core development stack?</span>
+                        <span id="faq-icon-0" class="font-mono text-zinc-500 text-lg">+</span>
                     </div>
-                    <button onclick="copyEmail()" id="copy-email-btn" 
-                            class="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-200 text-xs font-mono rounded border border-zinc-700 transition flex items-center justify-center gap-1.5">
-                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                        <span id="copy-email-label">Copy Email</span>
-                    </button>
+                    <div id="faq-0" class="hidden text-xs sm:text-sm text-zinc-400 mt-3 leading-relaxed font-normal pt-3 border-t border-zinc-800/80">
+                        Modern semantic HTML5, pure CSS3, vanilla asynchronous ES6+ JavaScript, Node.js, relational MySQL database architecture on Aiven Cloud, Brevo REST API mailing pipelines, and Render/GitHub Pages automated CI/CD deployments.
+                    </div>
                 </div>
 
-                <!-- CTA Group -->
-                <div class="flex flex-wrap items-center gap-3">
+                <div class="taste-box rounded-xl p-5 cursor-pointer" onclick="toggleAccordion('faq-1')">
+                    <div class="flex items-center justify-between font-bold text-sm sm:text-base text-white">
+                        <span>Are you available for internships and software roles?</span>
+                        <span id="faq-icon-1" class="font-mono text-zinc-500 text-lg">+</span>
+                    </div>
+                    <div id="faq-1" class="hidden text-xs sm:text-sm text-zinc-400 mt-3 leading-relaxed font-normal pt-3 border-t border-zinc-800/80">
+                        Yes! I am a dedicated BCA student actively seeking software engineering internships and junior full-stack developer roles starting immediately.
+                    </div>
+                </div>
+
+                <div class="taste-box rounded-xl p-5 cursor-pointer" onclick="toggleAccordion('faq-2')">
+                    <div class="flex items-center justify-between font-bold text-sm sm:text-base text-white">
+                        <span>How does the transaction tracker handle real mailing workflows?</span>
+                        <span id="faq-icon-2" class="font-mono text-zinc-500 text-lg">+</span>
+                    </div>
+                    <div id="faq-2" class="hidden text-xs sm:text-sm text-zinc-400 mt-3 leading-relaxed font-normal pt-3 border-t border-zinc-800/80">
+                        The live application dispatches async payloads to an Express service connected with Brevo's verified REST API, guaranteeing sub-second delivery for transactional confirmation emails while logging all events to MySQL.
+                    </div>
+                </div>
+
+                <div class="taste-box rounded-xl p-5 cursor-pointer" onclick="toggleAccordion('faq-3')">
+                    <div class="flex items-center justify-between font-bold text-sm sm:text-base text-white">
+                        <span>How do we connect directly?</span>
+                        <span id="faq-icon-3" class="font-mono text-zinc-500 text-lg">+</span>
+                    </div>
+                    <div id="faq-3" class="hidden text-xs sm:text-sm text-zinc-400 mt-3 leading-relaxed font-normal pt-3 border-t border-zinc-800/80">
+                        You can email me directly at <strong class="text-white">shashank361902@gmail.com</strong> or message me on <strong class="text-white">LinkedIn</strong>. I respond within hours!
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- Divider Line -->
+        <div class="w-full taste-border-b"></div>
+
+        <!-- ========================================================
+             7. KINETIC CALLOUT & CONTACT SECTION
+             ======================================================== -->
+        <section id="contact" class="max-w-7xl mx-auto px-5 sm:px-8 py-24 w-full relative">
+            
+            <div class="glow-amber-radial top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-50"></div>
+
+            <div class="text-center relative z-10 mb-16">
+                <h2 class="text-5xl sm:text-7xl md:text-8xl font-extrabold tracking-tight text-white mb-6">
+                    Stop guessing, <br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-orange-500 to-amber-300">
+                        start deciding.
+                    </span>
+                </h2>
+                <p class="text-zinc-400 max-w-lg mx-auto text-sm sm:text-base font-normal">
+                    Let's collaborate on data-driven full-stack applications with verified schemas and high-throughput pipelines.
+                </p>
+            </div>
+
+            <div class="taste-box p-8 sm:p-12 rounded-2xl max-w-xl mx-auto text-center relative z-10">
+                <h3 class="text-2xl font-bold text-white mb-2">Connect with Shashank</h3>
+                <p class="text-xs text-zinc-400 mb-6 font-mono">shashank361902@gmail.com // Bangalore, Karnataka</p>
+
+                <div class="flex flex-wrap items-center justify-center gap-3">
                     <a href="mailto:shashank361902@gmail.com" 
-                       class="px-6 py-3 bg-white text-black font-semibold text-xs rounded hover:bg-zinc-200 transition font-sans">
+                       class="px-6 py-3 bg-white text-black font-semibold text-xs rounded-lg hover:bg-zinc-200 transition font-sans">
                         Compose Direct Mail &rarr;
                     </a>
                     <a href="https://www.linkedin.com/in/shashank-b-r-0635a2404?utm_source=share_via&utm_content=profile&utm_medium=member_android" 
                        target="_blank" rel="noopener noreferrer"
-                       class="px-5 py-3 text-xs font-mono text-zinc-300 border border-zinc-800 hover:border-zinc-500 rounded bg-black transition flex items-center gap-1.5">
+                       class="px-5 py-3 text-xs font-mono text-zinc-300 border border-zinc-800 hover:border-zinc-500 rounded-lg bg-black transition flex items-center gap-1.5">
                         <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
-                        <span>LinkedIn Network</span>
-                    </a>
-                    <a href="https://github.com/shashankBR16" 
-                       target="_blank" rel="noopener noreferrer"
-                       class="px-5 py-3 text-xs font-mono text-zinc-400 hover:text-white transition">
-                        GitHub Profile ↗
+                        <span>LinkedIn</span>
                     </a>
                 </div>
             </div>
+
         </section>
 
-        <!-- Minimal Footer -->
-        <footer class="w-full taste-border-t bg-black py-10 mt-auto">
-            <div class="max-w-7xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-zinc-500">
-                <div class="flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-zinc-700"></span>
-                    <span>&copy; 2026 Shashank B R · Built with TasteCode & TasteSkill Systems</span>
-                </div>
-                
-                <div class="flex items-center gap-6">
-                    <a href="https://github.com/shashankBR16" target="_blank" rel="noopener noreferrer" class="hover:text-white transition">GitHub</a>
-                    <a href="https://www.linkedin.com/in/shashank-b-r-0635a2404?utm_source=share_via&utm_content=profile&utm_medium=member_android" target="_blank" rel="noopener noreferrer" class="hover:text-white transition">LinkedIn</a>
-                    <a href="#home" class="hover:text-white transition">Top ↑</a>
+        <!-- ========================================================
+             8. MONUMENTAL OUTLINE FOOTER
+             ======================================================== -->
+        <footer class="w-full taste-border-t bg-black pt-16 pb-12 mt-auto overflow-hidden relative">
+            
+            <div class="max-w-7xl mx-auto px-5 sm:px-8 mb-12">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-xs font-mono text-zinc-400">
+                    <div>
+                        <div class="text-white font-bold mb-3 uppercase tracking-wider">Navigation</div>
+                        <ul class="space-y-2 font-sans">
+                            <li><a href="#home" class="hover:text-white transition">Home</a></li>
+                            <li><a href="#transformation-section" class="hover:text-white transition">Transformation</a></li>
+                            <li><a href="#desktop-workspace" class="hover:text-white transition">TasteCode Workspace</a></li>
+                            <li><a href="#projects" class="hover:text-white transition">Projects</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <div class="text-white font-bold mb-3 uppercase tracking-wider">Deployments</div>
+                        <ul class="space-y-2 font-sans">
+                            <li><a href="https://sophisticated-tracker.onrender.com" target="_blank" class="hover:text-white transition">Sophisticated Tracker ↗</a></li>
+                            <li><a href="https://shashankbr16.github.io/portfolio-website/" target="_blank" class="hover:text-white transition">Portfolio v2 ↗</a></li>
+                            <li><a href="https://github.com/shashankBR16" target="_blank" class="hover:text-white transition">Source Code ↗</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <div class="text-white font-bold mb-3 uppercase tracking-wider">Connect</div>
+                        <ul class="space-y-2 font-sans">
+                            <li><a href="https://www.linkedin.com/in/shashank-b-r-0635a2404?utm_source=share_via&utm_content=profile&utm_medium=member_android" target="_blank" class="hover:text-white transition">LinkedIn Profile ↗</a></li>
+                            <li><a href="mailto:shashank361902@gmail.com" class="hover:text-white transition">Direct Mail ↗</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <div class="text-white font-bold mb-3 uppercase tracking-wider">Identity</div>
+                        <p class="text-zinc-500 leading-relaxed font-sans text-xs">
+                            Shashank B R · BCA Student & Aspiring Full-Stack Software Engineer · Bangalore, India.
+                        </p>
+                    </div>
                 </div>
             </div>
+
+            <!-- Monumental Outline Heading -->
+            <div class="w-full text-center overflow-hidden py-4 select-none">
+                <div class="monumental-title">
+                    SHASHANK
+                </div>
+            </div>
+
+            <!-- Copyright Strip -->
+            <div class="max-w-7xl mx-auto px-5 sm:px-8 pt-8 taste-border-t flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] font-mono text-zinc-600">
+                <div>&copy; 2026 Shashank B R · Apache-2.0 / MIT License</div>
+                <div class="flex items-center gap-4">
+                    <span>TasteSkill & TasteCode UI Architecture</span>
+                    <a href="#home" class="hover:text-zinc-400 transition">Back to Top ↑</a>
+                </div>
+            </div>
+
         </footer>
 
     </div>
 
-    <!-- Interactive Scripts -->
+    <!-- ========================================================
+         JAVASCRIPT ENGINES
+         ======================================================== -->
     <script>
-        // ==========================================
-        // 1. Photo Fallback Handler
-        // ==========================================
-        function handleImgFallback() {
-            const img = document.getElementById('profile-img');
-            const fallback = document.getElementById('monogram-fallback');
-            if (img) img.style.display = 'none';
-            if (fallback) fallback.classList.remove('hidden');
-        }
-
-        // ==========================================
-        // 2. 1-Bit Bayer Matrix Canvas Algorithm
-        // ==========================================
+        // 1. Interactive 1-Bit Bayer Dither Canvas Engine
         const bayerMatrix4x4 = [
             [ 0,  8,  2, 10],
             [12,  4, 14,  6],
@@ -783,11 +932,10 @@
 
         const canvas = document.getElementById('dither-canvas');
         const ctx = canvas.getContext('2d', { alpha: true });
-
         let width, height;
         let mouseX = -1000, mouseY = -1000;
-        let targetMouseX = -1000, targetMouseY = -1000;
-        let time = 0;
+        let currentMouseX = -1000, currentMouseY = -1000;
+        let animClock = 0;
 
         function resizeCanvas() {
             width = canvas.width = window.innerWidth;
@@ -796,136 +944,191 @@
 
         window.addEventListener('resize', resizeCanvas);
         window.addEventListener('mousemove', (e) => {
-            targetMouseX = e.clientX;
-            targetMouseY = e.clientY;
+            mouseX = e.clientX;
+            mouseY = e.clientY;
         });
 
         resizeCanvas();
 
-        const cellSize = 11;
+        const dotGridStep = 11;
 
-        function drawDitherGrid() {
+        function renderDitherLoop() {
             ctx.clearRect(0, 0, width, height);
 
-            mouseX += (targetMouseX - mouseX) * 0.08;
-            mouseY += (targetMouseY - mouseY) * 0.08;
-            time += 0.015;
+            currentMouseX += (mouseX - currentMouseX) * 0.08;
+            currentMouseY += (mouseY - currentMouseY) * 0.08;
+            animClock += 0.012;
 
-            const cols = Math.ceil(width / cellSize);
-            const rows = Math.ceil(height / cellSize);
+            const cols = Math.ceil(width / dotGridStep);
+            const rows = Math.ceil(height / dotGridStep);
 
             ctx.fillStyle = '#ffffff';
 
             for (let i = 0; i < cols; i++) {
-                const x = i * cellSize;
-                const xRatio = x / width;
+                const px = i * dotGridStep;
+                const normX = px / width;
 
                 for (let j = 0; j < rows; j++) {
-                    const y = j * cellSize;
+                    const py = j * dotGridStep;
 
-                    const wave1 = Math.sin(x * 0.003 + y * 0.002 + time);
-                    const wave2 = Math.cos(x * 0.004 - y * 0.003 + time * 0.8);
-                    
-                    const dx = x - mouseX;
-                    const dy = y - mouseY;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-                    const mouseInfluence = Math.max(0, 1 - dist / 350);
+                    const wave = Math.sin(px * 0.0035 + py * 0.0025 + animClock) * 0.45;
+                    const cross = Math.cos(px * 0.002 - py * 0.0035 + animClock * 0.7) * 0.35;
 
-                    let brightness = (wave1 * 0.4 + wave2 * 0.3 + 0.3) * (0.2 + xRatio * 0.85);
-                    brightness += mouseInfluence * 0.45;
+                    const distToMouse = Math.hypot(px - currentMouseX, py - currentMouseY);
+                    const mouseAttract = Math.max(0, 1 - distToMouse / 380) * 0.45;
 
-                    const matrixVal = bayerMatrix4x4[i % 4][j % 4] / 16;
+                    let brightness = (wave + cross + 0.35) * (0.15 + normX * 0.85) + mouseAttract;
+                    const threshold = bayerMatrix4x4[i % 4][j % 4] / 16;
 
-                    if (brightness > matrixVal) {
-                        const dotSize = brightness > 0.8 ? 2 : 1.2;
-                        ctx.fillRect(x, y, dotSize, dotSize);
+                    if (brightness > threshold) {
+                        const size = brightness > 0.82 ? 1.8 : 1.1;
+                        ctx.fillRect(px, py, size, size);
                     }
                 }
             }
 
-            requestAnimationFrame(drawDitherGrid);
+            requestAnimationFrame(renderDitherLoop);
         }
 
-        requestAnimationFrame(drawDitherGrid);
+        requestAnimationFrame(renderDitherLoop);
 
-        // ==========================================
-        // 3. "From Default to Designed" Stepper Engine
-        // (Exact replication of Video frames 00:08 - 00:15)
-        // ==========================================
-        let currentStep = 0;
-        const totalSteps = 4;
+        // 2. Typewriter Loop
+        const typewriterPhrases = [
+            "scalable web systems",
+            "relational databases",
+            "production pipelines",
+            "low-latency architectures"
+        ];
+        let pIndex = 0;
+        let cIndex = typewriterPhrases[0].length;
+        let deleting = true;
+        const twEl = document.getElementById('hero-typewriter-text');
 
-        const stepData = [
+        function runTypewriter() {
+            const current = typewriterPhrases[pIndex];
+            if (deleting) {
+                twEl.innerText = current.substring(0, cIndex - 1);
+                cIndex--;
+            } else {
+                twEl.innerText = current.substring(0, cIndex + 1);
+                cIndex++;
+            }
+
+            let speed = deleting ? 35 : 75;
+
+            if (!deleting && cIndex === current.length) {
+                speed = 2200;
+                deleting = true;
+            } else if (deleting && cIndex === 0) {
+                deleting = false;
+                pIndex = (pIndex + 1) % typewriterPhrases.length;
+                speed = 400;
+            }
+
+            setTimeout(runTypewriter, speed);
+        }
+
+        setTimeout(runTypewriter, 1800);
+
+        // 3. EXACT TASTESKILL 5-STAGE TRANSFORMATION ENGINE (Video 1 & 2 match)
+        const transStages = [
+            // Stage 0: The default (Purple gradient, emojis, 3 glass cards)
             {
-                title: "The default",
-                badge: "Step 1: Generic Template",
-                status: "State: Purple gradient, template emojis, cluttered layout",
+                step: "Step 1 of 5",
+                meta: "Notice: Heavy purple gradient, emojis, generic claim cards.",
                 html: `
-                    <div class="rounded-xl p-8 text-center text-white relative overflow-hidden" 
-                         style="background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%); box-shadow: 0 20px 40px rgba(168, 85, 247, 0.3);">
-                        <div class="inline-block px-3 py-1 bg-white/20 rounded-full text-xs font-semibold mb-4 backdrop-blur-sm">
-                            ✨ AI Powered Revolutionary Platform ✨
+                    <div class="rounded-xl p-8 text-center text-white relative overflow-hidden transition-all duration-500" 
+                         style="background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);">
+                        <div class="flex items-center justify-between pb-3 mb-6 border-b border-white/20 text-xs font-semibold">
+                            <span>✨ NoteFlow</span>
+                            <div class="flex gap-4">
+                                <span>Features</span>
+                                <span>Pricing</span>
+                                <span>About</span>
+                            </div>
+                            <span class="px-3 py-1 bg-white text-purple-700 rounded-lg">Get started</span>
                         </div>
                         <h3 class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3">
-                            Revolutionize Your Note-Taking Experience
+                            Revolutionize Your Note-Taking Experience ✨
                         </h3>
-                        <p class="text-white/80 text-sm max-w-lg mx-auto mb-6">
-                            Unlock the power of AI-driven productivity with our cutting-edge, seamless, intuitive next-gen cloud platform.
+                        <p class="text-white/80 text-xs sm:text-sm max-w-lg mx-auto mb-6">
+                            Unlock the power of AI-driven productivity with our cutting-edge, seamless and intuitive platform.
                         </p>
-                        <div class="flex items-center justify-center gap-3">
+                        <div class="flex items-center justify-center gap-3 mb-8">
                             <span class="px-5 py-2.5 bg-white text-purple-700 font-bold rounded-lg text-xs shadow-lg">Get Started Free 🚀</span>
-                            <span class="px-5 py-2.5 bg-white/20 text-white font-semibold rounded-lg text-xs backdrop-blur-sm">Learn More</span>
+                            <span class="px-5 py-2.5 bg-white/20 text-white font-semibold rounded-lg text-xs">Learn More</span>
                         </div>
-                        <div class="grid grid-cols-3 gap-3 mt-8 pt-6 border-t border-white/20 text-xs">
-                            <div class="p-3 bg-white/10 rounded-lg">⚡ Lightning Fast</div>
-                            <div class="p-3 bg-white/10 rounded-lg">🔒 Super Secure</div>
-                            <div class="p-3 bg-white/10 rounded-lg">🎨 Beautiful UI</div>
+                        <div class="grid grid-cols-3 gap-3 text-left text-xs">
+                            <div class="p-3 bg-white/10 rounded-lg">
+                                <div class="font-bold">⚡ Lightning Fast</div>
+                                <div class="text-[11px] text-white/70">Blazing fast performance.</div>
+                            </div>
+                            <div class="p-3 bg-white/10 rounded-lg">
+                                <div class="font-bold">🔒 Super Secure</div>
+                                <div class="text-[11px] text-white/70">Enterprise grade security.</div>
+                            </div>
+                            <div class="p-3 bg-white/10 rounded-lg">
+                                <div class="font-bold">🎨 Beautiful Design</div>
+                                <div class="text-[11px] text-white/70">Stunning interface.</div>
+                            </div>
                         </div>
                     </div>
                 `
             },
+            // Stage 1: One palette (Gradient goes, neutral warm background)
             {
-                title: "One palette",
-                badge: "Step 2: Single Warm Palette",
-                status: "State: The gradient is stripped. Warm paper background with dark ink contrast.",
+                step: "Step 2 of 5",
+                meta: "One palette: A warm neutral carries the whole page.",
                 html: `
-                    <div class="rounded-xl p-8 bg-[#f5f4ef] text-zinc-900 transition-all duration-300">
+                    <div class="rounded-xl p-8 bg-[#f5f4ef] text-zinc-900 transition-all duration-500">
                         <div class="flex items-center justify-between pb-4 mb-6 border-b border-zinc-200">
-                            <span class="font-bold text-sm tracking-tight text-zinc-900">NoteFlow</span>
-                            <span class="text-xs text-zinc-500 font-mono">Sign in · Get started</span>
+                            <div class="flex items-center gap-2 font-bold text-sm text-zinc-950">
+                                <span class="w-3.5 h-3.5 bg-zinc-950 rounded-sm"></span>
+                                NoteFlow
+                            </div>
+                            <div class="flex items-center gap-4 text-xs text-zinc-600">
+                                <span>Features</span>
+                                <span>Pricing</span>
+                                <span>About</span>
+                                <span class="px-3 py-1 bg-zinc-950 text-white rounded-md">Get started</span>
+                            </div>
                         </div>
-                        <h3 class="text-3xl sm:text-4xl font-bold tracking-tight text-zinc-900 mb-3">
+                        <h3 class="text-3xl sm:text-4xl font-bold tracking-tight text-zinc-950 mb-3">
                             Notes that keep up with your thinking.
                         </h3>
                         <p class="text-zinc-600 text-sm max-w-lg mb-6 leading-relaxed">
-                            Capture fast, find anything later. NoteFlow keeps your notes plain, searchable, and on every device.
+                            Capture fast, find anything later. NoteFlow keeps your notes plain, searchable and on every device.
                         </p>
                         <div class="flex items-center gap-3">
-                            <span class="px-5 py-2.5 bg-zinc-900 text-white font-semibold rounded-lg text-xs">Start writing</span>
+                            <span class="px-5 py-2.5 bg-zinc-950 text-white font-semibold rounded-lg text-xs">Start writing</span>
                             <span class="px-5 py-2.5 border border-zinc-300 text-zinc-700 font-medium rounded-lg text-xs">See how it works</span>
                         </div>
                     </div>
                 `
             },
+            // Stage 2: Real type (Tighter headline, no emojis)
             {
-                title: "Real type",
-                badge: "Step 3: Intentional Typography",
-                status: "State: Tight display tracking, no childish emojis, human tone.",
+                step: "Step 3 of 5",
+                meta: "Real type: Copy that says something, no emoji doing the talking.",
                 html: `
-                    <div class="rounded-xl p-8 bg-[#f5f4ef] text-zinc-900 transition-all duration-300">
+                    <div class="rounded-xl p-8 bg-[#f5f4ef] text-zinc-900 transition-all duration-500">
                         <div class="flex items-center justify-between pb-4 mb-6 border-b border-zinc-200">
-                            <span class="font-bold text-base tracking-tight text-zinc-900">NoteFlow</span>
+                            <div class="flex items-center gap-2 font-bold text-sm text-zinc-950">
+                                <span class="w-3.5 h-3.5 bg-zinc-950 rounded-sm"></span>
+                                NoteFlow
+                            </div>
                             <div class="flex items-center gap-4 text-xs font-medium text-zinc-600">
                                 <span>Features</span>
                                 <span>Pricing</span>
-                                <span class="px-3 py-1 bg-zinc-900 text-white rounded">Get started</span>
+                                <span>About</span>
+                                <span class="px-3 py-1 bg-zinc-950 text-white rounded font-sans">Get started</span>
                             </div>
                         </div>
                         <h3 class="text-3xl sm:text-4xl font-extrabold tracking-tighter text-zinc-950 mb-3 leading-tight">
                             Notes that keep up with your thinking.
                         </h3>
                         <p class="text-zinc-600 text-sm max-w-md mb-6 leading-relaxed font-normal">
-                            Capture fast, find anything later. NoteFlow keeps your notes plain, searchable, and synced locally on every device.
+                            Capture fast, find anything later. NoteFlow keeps your notes plain, searchable and on every device.
                         </p>
                         <div class="flex items-center gap-3">
                             <span class="px-5 py-2.5 bg-zinc-950 text-white font-medium rounded text-xs">Start writing</span>
@@ -934,71 +1137,108 @@
                     </div>
                 `
             },
+            // Stage 3: Layout with intent (Split hierarchy & fast/private/plain cards)
             {
-                title: "The last 10%",
-                badge: "Step 4: The Last 10% (Designed)",
-                status: "State: Real product preview card, monospace metadata, tags, authentic depth.",
+                step: "Step 4 of 5",
+                meta: "Layout with intent: Fast, Private, Plain cards with clean copy.",
                 html: `
-                    <div class="rounded-xl p-6 sm:p-8 bg-[#f8f7f2] text-zinc-900 transition-all duration-300 border border-zinc-200 shadow-sm">
-                        <!-- App Bar -->
-                        <div class="flex items-center justify-between pb-4 mb-6 border-b border-zinc-200/80">
-                            <div class="flex items-center gap-2">
-                                <div class="w-3.5 h-3.5 rounded bg-zinc-950"></div>
-                                <span class="font-bold text-sm tracking-tight text-zinc-900">NoteFlow</span>
+                    <div class="rounded-xl p-6 sm:p-8 bg-[#f5f4ef] text-zinc-900 transition-all duration-500">
+                        <div class="flex items-center justify-between pb-4 mb-6 border-b border-zinc-200">
+                            <div class="flex items-center gap-2 font-bold text-sm text-zinc-950">
+                                <span class="w-3.5 h-3.5 bg-zinc-950 rounded-sm"></span>
+                                NoteFlow
                             </div>
-                            <div class="flex items-center gap-3 text-xs font-medium">
+                            <div class="flex items-center gap-4 text-xs font-medium text-zinc-600">
+                                <span>Features</span>
+                                <span>Pricing</span>
+                                <span>About</span>
+                                <span class="px-3 py-1 bg-zinc-950 text-white rounded">Get started</span>
+                            </div>
+                        </div>
+                        <h3 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-zinc-950 mb-3 leading-tight">
+                            Notes that keep up with your thinking.
+                        </h3>
+                        <p class="text-zinc-600 text-xs sm:text-sm max-w-md mb-6 leading-relaxed">
+                            Capture fast, find anything later. NoteFlow keeps your notes plain, searchable and on every device.
+                        </p>
+                        <div class="flex items-center gap-2 mb-8">
+                            <span class="px-4 py-2 bg-zinc-950 text-white font-medium rounded text-xs shadow-sm">Start writing</span>
+                            <span class="px-3 py-2 text-zinc-700 text-xs">See how it works</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-3 text-left">
+                            <div class="p-3 bg-white rounded-lg border border-zinc-200">
+                                <div class="font-bold text-xs text-zinc-950">Fast</div>
+                                <div class="text-[11px] text-zinc-500 mt-1">Opens in under a second, even with years of notes.</div>
+                            </div>
+                            <div class="p-3 bg-white rounded-lg border border-zinc-200">
+                                <div class="font-bold text-xs text-zinc-950">Private</div>
+                                <div class="text-[11px] text-zinc-500 mt-1">Your notes stay on your devices unless you share them.</div>
+                            </div>
+                            <div class="p-3 bg-white rounded-lg border border-zinc-200">
+                                <div class="font-bold text-xs text-zinc-950">Plain</div>
+                                <div class="text-[11px] text-zinc-500 mt-1">Text-first. No boards, no blocks, no setup.</div>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            // Stage 4: The last 10% (Authentic interactive preview with Weekly Review card & tags)
+            {
+                step: "Step 5 of 5",
+                meta: "The last 10%: Real interactive product preview, metadata tags, subtle depth.",
+                html: `
+                    <div class="rounded-xl p-6 sm:p-8 bg-[#f5f4ef] text-zinc-900 transition-all duration-500">
+                        <div class="flex items-center justify-between pb-4 mb-6 border-b border-zinc-200">
+                            <div class="flex items-center gap-2 font-bold text-sm text-zinc-950">
+                                <span class="w-3.5 h-3.5 bg-zinc-950 rounded-sm"></span>
+                                NoteFlow
+                            </div>
+                            <div class="flex items-center gap-4 text-xs font-medium">
                                 <span class="text-zinc-500">Sign in</span>
-                                <span class="px-3 py-1 bg-zinc-950 text-white rounded font-sans text-xs">Get started</span>
+                                <span class="px-3 py-1 bg-zinc-950 text-white rounded text-xs">Get started</span>
                             </div>
                         </div>
 
-                        <!-- Hero + Real Product Preview Grid -->
                         <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
                             <div class="md:col-span-7">
                                 <h3 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-zinc-950 mb-2 leading-tight">
                                     Notes that keep up with your thinking.
                                 </h3>
-                                <p class="text-zinc-600 text-xs sm:text-sm mb-4 leading-relaxed font-normal">
-                                    Capture fast, find anything later. NoteFlow keeps your notes plain, searchable, and on every device.
+                                <p class="text-zinc-600 text-xs sm:text-sm mb-4 leading-relaxed">
+                                    Capture fast, find anything later. NoteFlow keeps your notes plain, searchable and on every device.
                                 </p>
-                                <div class="flex items-center gap-2">
+                                <div class="flex items-center gap-2 mb-2">
                                     <span class="px-4 py-2 bg-zinc-950 text-white font-medium rounded text-xs shadow-sm">Start writing</span>
-                                    <span class="px-3 py-2 text-zinc-700 text-xs hover:underline">See how it works</span>
+                                    <span class="px-3 py-2 text-zinc-700 text-xs">See how it works</span>
                                 </div>
+                                <div class="text-[11px] text-zinc-400 font-mono">Free for personal use. No card needed.</div>
                             </div>
 
-                            <!-- Embedded Real Product Card -->
-                            <div class="md:col-span-5 bg-white p-4 rounded-lg border border-zinc-200 shadow-sm font-sans text-left">
+                            <!-- Real NoteFlow Product Card (Video 1 & 2 exact recreation) -->
+                            <div class="md:col-span-5 bg-white p-4 rounded-xl border border-zinc-200 shadow-md font-sans text-left">
                                 <div class="flex items-center justify-between text-[11px] text-zinc-400 font-mono mb-2">
                                     <span>Planning</span>
                                     <span>Edited 2m ago</span>
                                 </div>
-                                <div class="font-semibold text-xs text-zinc-900 mb-2">Weekly review</div>
-                                <ul class="text-[11px] text-zinc-600 space-y-1 mb-3">
-                                    <li class="flex items-center gap-1.5"><span class="text-emerald-500">✓</span> Stop onboarding copy</li>
-                                    <li class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded border border-zinc-300"></span> Review pricing page</li>
-                                    <li class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded border border-zinc-300"></span> Call with Dana about Q3</li>
+                                <div class="font-bold text-xs text-zinc-900 mb-2">Weekly review</div>
+                                <ul class="text-[11px] text-zinc-600 space-y-1.5 mb-3">
+                                    <li class="flex items-center gap-2">
+                                        <span class="text-emerald-500 font-bold">✓</span> 
+                                        <span>Ship onboarding copy</span>
+                                    </li>
+                                    <li class="flex items-center gap-2">
+                                        <span class="w-3 h-3 rounded border border-zinc-300 inline-block"></span> 
+                                        <span>Review pricing page</span>
+                                    </li>
+                                    <li class="flex items-center gap-2">
+                                        <span class="w-3 h-3 rounded border border-zinc-300 inline-block"></span> 
+                                        <span>Call with Dana about Q3</span>
+                                    </li>
                                 </ul>
-                                <div class="flex gap-1">
-                                    <span class="px-1.5 py-0.5 bg-zinc-100 text-zinc-600 rounded text-[10px] font-mono">#planning</span>
-                                    <span class="px-1.5 py-0.5 bg-zinc-100 text-zinc-600 rounded text-[10px] font-mono">#weekly</span>
+                                <div class="flex gap-1.5">
+                                    <span class="px-2 py-0.5 bg-zinc-100 text-zinc-600 rounded text-[10px] font-mono">#planning</span>
+                                    <span class="px-2 py-0.5 bg-zinc-100 text-zinc-600 rounded text-[10px] font-mono">#weekly</span>
                                 </div>
-                            </div>
-                        </div>
-
-                        <!-- Footer Pill Strip -->
-                        <div class="grid grid-cols-3 gap-2 mt-6 pt-4 border-t border-zinc-200/80 text-left">
-                            <div class="p-2.5 bg-white rounded border border-zinc-200">
-                                <div class="font-bold text-xs text-zinc-900">Fast</div>
-                                <div class="text-[11px] text-zinc-500">Opens in under a second.</div>
-                            </div>
-                            <div class="p-2.5 bg-white rounded border border-zinc-200">
-                                <div class="font-bold text-xs text-zinc-900">Private</div>
-                                <div class="text-[11px] text-zinc-500">Your notes stay on devices.</div>
-                            </div>
-                            <div class="p-2.5 bg-white rounded border border-zinc-200">
-                                <div class="font-bold text-xs text-zinc-900">Plain</div>
-                                <div class="text-[11px] text-zinc-500">Text-first. No boards.</div>
                             </div>
                         </div>
                     </div>
@@ -1006,88 +1246,128 @@
             }
         ];
 
-        function setTransformationStep(index) {
-            currentStep = index;
-            const data = stepData[currentStep];
+        let activeStageIndex = -1;
+        const transStageCanvas = document.getElementById('trans-stage-canvas');
+        const transStepCounter = document.getElementById('trans-step-counter');
+        const transMetaNote = document.getElementById('trans-meta-note');
+        const transContainer = document.getElementById('transformation-section');
+        const progressLabel = document.getElementById('progress-percentage-label');
 
-            // Update Left Buttons Styling
-            for (let i = 0; i < totalSteps; i++) {
-                const btn = document.getElementById(`step-btn-${i}`);
-                if (i === currentStep) {
-                    btn.className = "w-full text-left p-3.5 rounded-lg border transition-all flex flex-col border-orange-500/60 bg-zinc-900 text-white shadow-sm";
-                } else {
-                    btn.className = "w-full text-left p-3.5 rounded-lg border transition-all flex flex-col border-zinc-800/60 bg-transparent text-zinc-400 hover:border-zinc-600";
+        function setTransformationStage(index) {
+            if (activeStageIndex === index) return;
+            activeStageIndex = index;
+
+            // Highlight active step on the left
+            for (let i = 0; i < 5; i++) {
+                const stepEl = document.getElementById(`trans-step-${i}`);
+                if (stepEl) {
+                    if (i === activeStageIndex) {
+                        stepEl.className = "step-bar-active cursor-pointer transition-all duration-300";
+                    } else {
+                        stepEl.className = "pl-4 cursor-pointer transition-all duration-300 opacity-40 hover:opacity-100";
+                    }
                 }
             }
 
-            // Update Labels
-            document.getElementById('step-counter-label').innerText = `Step ${currentStep + 1} of ${totalSteps}`;
-            document.getElementById('step-badge-indicator').innerText = data.badge;
-            document.getElementById('preview-status-text').innerText = data.status;
+            // Crossfade content
+            const stage = transStages[activeStageIndex];
+            transStepCounter.innerText = stage.step;
+            transMetaNote.innerText = stage.meta;
 
-            // Render Stage
-            const container = document.getElementById('morph-container');
-            container.style.opacity = '0';
-            container.style.transform = 'scale(0.98)';
-            
+            transStageCanvas.style.opacity = '0';
+            transStageCanvas.style.transform = 'translateY(6px)';
+
             setTimeout(() => {
-                container.innerHTML = data.html;
-                container.style.opacity = '1';
-                container.style.transform = 'scale(1)';
-            }, 180);
+                transStageCanvas.innerHTML = stage.html;
+                transStageCanvas.style.opacity = '1';
+                transStageCanvas.style.transform = 'translateY(0px)';
+            }, 150);
         }
 
-        function nextStep() {
-            setTransformationStep((currentStep + 1) % totalSteps);
+        function handleStickyStageScroll() {
+            if (!transContainer) return;
+            const rect = transContainer.getBoundingClientRect();
+            const scrollDistance = transContainer.offsetHeight - window.innerHeight;
+
+            if (scrollDistance <= 0) return;
+
+            // Progress between 0.0 and 1.0
+            const progress = Math.min(Math.max(-rect.top / scrollDistance, 0), 0.999);
+            
+            if (progressLabel) {
+                progressLabel.innerText = `${Math.round(progress * 100)}% completed`;
+            }
+
+            // Map progress to 5 stages
+            const stage = Math.floor(progress * 5);
+            setTransformationStage(stage);
         }
 
-        function prevStep() {
-            setTransformationStep((currentStep - 1 + totalSteps) % totalSteps);
+        window.addEventListener('scroll', handleStickyStageScroll, { passive: true });
+
+        function manualScrollStage(stageIndex) {
+            if (!transContainer) return;
+            const scrollDistance = transContainer.offsetHeight - window.innerHeight;
+            const targetY = transContainer.offsetTop + (stageIndex / 5) * scrollDistance + 20;
+            window.scrollTo({
+                top: targetY,
+                behavior: 'smooth'
+            });
         }
 
-        function toggleBeforeAfter() {
-            if (currentStep === 0) {
-                setTransformationStep(3); // Jump to final
+        // Initialize Stage 0
+        setTransformationStage(0);
+
+        // 4. Viewport Expansion Box Animation (Video 2 match)
+        const ideBox = document.getElementById('desktop-ide-box');
+        function handleIdeExpansion() {
+            if (!ideBox) return;
+            const rect = ideBox.getBoundingClientRect();
+            if (rect.top < window.innerHeight * 0.85 && rect.bottom > 0) {
+                ideBox.classList.add('in-view');
             } else {
-                setTransformationStep(0); // Jump to before
+                ideBox.classList.remove('in-view');
+            }
+        }
+        window.addEventListener('scroll', handleIdeExpansion, { passive: true });
+        handleIdeExpansion();
+
+        // 5. Accordion Toggle
+        function toggleAccordion(id) {
+            const el = document.getElementById(id);
+            const iconIndex = id.split('-')[1];
+            const icon = document.getElementById(`faq-icon-${iconIndex}`);
+            if (el.classList.contains('hidden')) {
+                el.classList.remove('hidden');
+                if (icon) icon.innerText = '−';
+            } else {
+                el.classList.add('hidden');
+                if (icon) icon.innerText = '+';
             }
         }
 
-        // Initialize Step 0 on load
-        setTransformationStep(0);
+        // 6. One-Click Copy
+        function copyCliText() {
+            const btn = document.getElementById('copy-btn-hero');
+            const label = document.getElementById('copy-label-hero');
+            const text = "npx shashank --connect";
 
-        // ==========================================
-        // 4. Clipboard Utilities
-        // ==========================================
-        function copyTextToClipboard(text, btnId, labelId, successMsg) {
-            const btn = document.getElementById(btnId);
-            const label = document.getElementById(labelId);
-            const originalLabel = label.innerText;
-
-            const temp = document.createElement('textarea');
-            temp.value = text;
-            document.body.appendChild(temp);
-            temp.select();
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
             document.execCommand('copy');
-            document.body.removeChild(temp);
+            document.body.removeChild(el);
 
-            label.innerText = successMsg;
+            label.innerText = "Copied!";
             btn.classList.add('bg-white', 'text-black');
             btn.classList.remove('bg-zinc-900', 'text-zinc-300');
 
             setTimeout(() => {
-                label.innerText = originalLabel;
+                label.innerText = "Copy";
                 btn.classList.remove('bg-white', 'text-black');
                 btn.classList.add('bg-zinc-900', 'text-zinc-300');
             }, 2000);
-        }
-
-        function copyCliCommand() {
-            copyTextToClipboard("npx shashank --contact", "copy-cli-btn", "copy-cli-label", "Copied!");
-        }
-
-        function copyEmail() {
-            copyTextToClipboard("shashank361902@gmail.com", "copy-email-btn", "copy-email-label", "Copied!");
         }
     </script>
 </body>
